@@ -587,15 +587,18 @@ async def health_check() -> JSONResponse:
 #  ROOT ROUTE — SERVES THE FRONTEND INDEX PAGE
 # =============================================================================
 
+from fastapi.responses import HTMLResponse
+
 @app.get("/", include_in_schema=False)
-async def serve_frontend() -> FileResponse:
-    index_path = FRONTEND_DIR / "index.html"
-    if not index_path.exists():
-        raise HTTPException(
-            status_code=503,
-            detail="Frontend not found. Place index.html in the frontend/ directory.",
-        )
-    return FileResponse(str(index_path))
+async def serve_frontend() -> HTMLResponse:
+    # Try file first, fallback to embedded HTML
+    index_path = BASE_DIR / "frontend" / "index.html"
+    if index_path.exists():
+        return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+    index_path2 = BASE_DIR.parent / "frontend" / "index.html"
+    if index_path2.exists():
+        return HTMLResponse(content=index_path2.read_text(encoding="utf-8"))
+    raise HTTPException(status_code=503, detail="Frontend not found.")
 
 
 # =============================================================================
