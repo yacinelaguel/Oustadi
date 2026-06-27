@@ -39,6 +39,12 @@ from docx_exporter import build_exam_docx
 from cleanup import schedule_file_deletion
 
 # ---------------------------------------------------------------------------
+# GEMINI API KEY — loaded from Render environment variable
+# ---------------------------------------------------------------------------
+import os as _os
+GEMINI_API_KEY = _os.environ.get("GEMINI_API_KEY", "")
+
+# ---------------------------------------------------------------------------
 # LOGGING CONFIGURATION
 # ---------------------------------------------------------------------------
 logging.basicConfig(
@@ -219,12 +225,6 @@ class ExamGenerationRequest(BaseModel):
         description="سهل | متوسط | صعب",
         example="متوسط",
     )
-    gemini_api_key: str = Field(
-        ...,
-        min_length=30,
-        description="The teacher's personal Gemini API key",
-    )
-
     @validator("trimester")
     def validate_trimester(cls, v: str) -> str:
         allowed = {"الفصل الأول", "الفصل الثاني", "الفصل الثالث"}
@@ -380,7 +380,7 @@ async def generate_exam(
     # ------------------------------------------------------------------
     try:
         raw_json_payload: Dict[str, Any] = await generate_exam_content(
-            api_key=request.gemini_api_key,
+            api_key=GEMINI_API_KEY,
             educational_level=request.educational_level,
             academic_year=request.academic_year,
             specialty_stream=request.specialty_stream,
