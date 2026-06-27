@@ -146,7 +146,7 @@ app.add_middleware(
 # STATIC FILE MOUNT
 # Serves the frontend/index.html and any companion assets
 # ---------------------------------------------------------------------------
-FRONTEND_DIR = BASE_DIR.parent / "frontend"
+FRONTEND_DIR = BASE_DIR / "frontend"
 if not FRONTEND_DIR.exists():
     FRONTEND_DIR = BASE_DIR.parent.parent / "frontend"
 if FRONTEND_DIR.exists():
