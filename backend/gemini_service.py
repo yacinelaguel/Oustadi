@@ -40,19 +40,22 @@ log = logging.getLogger("ostadi.gemini")
 # RETRY POLICY CONSTANTS
 # ---------------------------------------------------------------------------
 MAX_RETRY_ATTEMPTS   = 2      # Maximum number of attempts before giving up
-BASE_BACKOFF_SECONDS = 2.0    # Initial wait time on first retry
+BASE_BACKOFF_SECONDS = 60.0   # FIX: Gemini 429 asks for ~48s — start at 60s
 BACKOFF_MULTIPLIER   = 2.0    # Each retry doubles the wait
-MAX_BACKOFF_SECONDS  = 64.0   # Hard ceiling on wait time between retries
-JITTER_RANGE         = 1.0    # ±1 second random jitter to prevent thundering herd
+MAX_BACKOFF_SECONDS  = 120.0  # Hard ceiling on wait time between retries
+JITTER_RANGE         = 5.0    # ±5 second random jitter to prevent thundering herd
 
 # ---------------------------------------------------------------------------
 # GEMINI MODEL CONFIGURATION
 # ---------------------------------------------------------------------------
-GEMINI_MODEL_NAME = "gemini-2.0-flash-lite"
-GEMINI_MAX_TOKENS = 4096
-GEMINI_TEMPERATURE   = 0.4    # Low temp → deterministic, structured output
-GEMINI_TOP_P         = 0.9
-GEMINI_TOP_K         = 40
+# FIX: switched from gemini-2.0-flash-lite (very low free quota)
+#      to gemini-1.5-flash which has a more generous free tier:
+#      - 15 RPM, 1 million TPM, 1500 RPD
+GEMINI_MODEL_NAME  = "gemini-1.5-flash"
+GEMINI_MAX_TOKENS  = 4096
+GEMINI_TEMPERATURE = 0.4    # Low temp → deterministic, structured output
+GEMINI_TOP_P       = 0.9
+GEMINI_TOP_K       = 40
 
 
 # =============================================================================
@@ -203,6 +206,14 @@ def _build_user_prompt(
 #  SECTION 2: EXPONENTIAL BACKOFF RETRY ENGINE
 # =============================================================================
 
+# FIX: User-friendly Arabic error messages for quota errors
+QUOTA_ERROR_MESSAGE_AR = (
+    "عذراً، تم تجاوز حصة استخدام Gemini API المجانية. "
+    "يرجى الانتظار بضع دقائق ثم المحاولة مجدداً، "
+    "أو استخدام مفتاح API جديد من aistudio.google.com"
+)
+
+
 async def _call_gemini_with_backoff(
     model: genai.GenerativeModel,
     user_prompt: str,
@@ -246,17 +257,34 @@ async def _call_gemini_with_backoff(
         except ResourceExhausted as exc:
             # HTTP 429 — quota exceeded
             last_exception = exc
+
+            # FIX: extract retry_delay from the error if available,
+            # otherwise fall back to BASE_BACKOFF_SECONDS (60s)
+            retry_after = BASE_BACKOFF_SECONDS
+            try:
+                # Google API sometimes embeds retry delay in error details
+                if hasattr(exc, 'retry_delay') and exc.retry_delay:
+                    retry_after = exc.retry_delay.seconds + 5  # +5s safety margin
+            except Exception:
+                pass
+
             wait_time = min(
-                BASE_BACKOFF_SECONDS * (BACKOFF_MULTIPLIER ** (attempt - 1)),
+                retry_after * (BACKOFF_MULTIPLIER ** (attempt - 1)),
                 MAX_BACKOFF_SECONDS,
             )
             jitter = random.uniform(-JITTER_RANGE, JITTER_RANGE)
-            total_wait = max(0.5, wait_time + jitter)
+            total_wait = max(60.0, wait_time + jitter)  # FIX: minimum 60s for 429
 
             log.warning(
                 f"[{session_id}] ⚠ Quota exceeded (429) — "
                 f"waiting {total_wait:.1f}s before retry {attempt + 1}..."
             )
+
+            # FIX: if this is the last attempt, raise immediately with
+            # a friendly message instead of sleeping then failing
+            if attempt >= MAX_RETRY_ATTEMPTS:
+                raise RuntimeError(QUOTA_ERROR_MESSAGE_AR) from exc
+
             await asyncio.sleep(total_wait)
 
         except ServiceUnavailable as exc:
@@ -273,6 +301,12 @@ async def _call_gemini_with_backoff(
                 f"[{session_id}] ⚠ Service unavailable (503) — "
                 f"waiting {total_wait:.1f}s before retry {attempt + 1}..."
             )
+
+            if attempt >= MAX_RETRY_ATTEMPTS:
+                raise RuntimeError(
+                    "خدمة Gemini غير متاحة مؤقتاً. يرجى المحاولة مجدداً بعد لحظات."
+                ) from exc
+
             await asyncio.sleep(total_wait)
 
         except Exception as exc:
@@ -287,7 +321,7 @@ async def _call_gemini_with_backoff(
 
     # All retries exhausted
     raise RuntimeError(
-        f"Gemini API call failed after {MAX_RETRY_ATTEMPTS} attempts. "
+        f"[{session_id}] Gemini API call failed after {MAX_RETRY_ATTEMPTS} attempts. "
         f"Last error: {last_exception}"
     )
 
