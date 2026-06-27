@@ -148,14 +148,18 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 FRONTEND_DIR = BASE_DIR / "frontend"
 if not FRONTEND_DIR.exists():
-    FRONTEND_DIR = BASE_DIR.parent.parent / "frontend"
-if FRONTEND_DIR.exists():
-    app.mount(
-        "/static",
-        StaticFiles(directory=str(FRONTEND_DIR)),
-        name="frontend_static",
-    )
-    log.info(f"Static files mounted from: {FRONTEND_DIR}")
+    FRONTEND_DIR = BASE_DIR.parent / "frontend"
+
+STATIC_DIR = BASE_DIR / "static"
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
+app.mount(
+    "/static",
+    StaticFiles(directory=str(STATIC_DIR)),
+    name="static_assets",
+)
+
+log.info(f"Frontend dir: {FRONTEND_DIR}")
+log.info(f"Static dir: {STATIC_DIR}")
 
 
 # =============================================================================
