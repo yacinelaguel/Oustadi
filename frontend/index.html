@@ -878,7 +878,7 @@
     </div>
 
     <div style="margin-top:2rem; padding-top:1.2rem; border-top:1px solid var(--glass-stroke); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-      <span class="text-caption">2025-2026 أستاذي — جميع الحقوق محفوظة لياسين لاڨيل</span>
+      <span class="text-caption">2025-2026 أستاذي — جميع الحقوق محفوظة لياسين لعقال</span>
       <span class="creator-signature" style="font-size:0.78rem;">Crafted with precision by: <span>LAGUEL YACINE</span></span>
     </div>
   </div>
@@ -963,10 +963,14 @@ async function loadLevels() {
     const res  = await fetch(LEVELS_URL);
     const data = await res.json();
     DOM.selectLevel.innerHTML = '<option value="" disabled selected>— اختر الطور —</option>';
-    data.levels.forEach(({ id, label, sub }) => {
+    data.levels.forEach((item) => {
       const opt = document.createElement('option');
-      opt.value = id;
-      opt.textContent = `${label}  (${sub})`;
+      if (typeof item === 'string') {
+        opt.value = item; opt.textContent = item;
+      } else {
+        opt.value = item.id || item.value || item.label || item;
+        opt.textContent = item.sub ? `${item.label}  (${item.sub})` : (item.label || item.id || item);
+      }
       DOM.selectLevel.appendChild(opt);
     });
   } catch { showError('تعذّر تحميل بيانات المناهج — تأكد من تشغيل الخادم.'); }
@@ -986,9 +990,14 @@ async function onLevelChange() {
     const res  = await fetch(YEARS_URL(level));
     const data = await res.json();
     DOM.selectYear.innerHTML = '<option value="" disabled selected>— اختر السنة —</option>';
-    data.years.forEach(({ code, label }) => {
+    data.years.forEach((item) => {
       const opt = document.createElement('option');
-      opt.value = code; opt.textContent = label;
+      if (typeof item === 'string') {
+        opt.value = item; opt.textContent = item;
+      } else {
+        opt.value = item.code || item.id || item.value || item.label || item;
+        opt.textContent = item.label || item.code || item.id || item;
+      }
       DOM.selectYear.appendChild(opt);
     });
     DOM.selectYear.disabled = false;
@@ -1008,13 +1017,18 @@ async function onYearChange() {
     const res  = await fetch(SPECIALTIES_URL(state.selectedLevel, year));
     const data = await res.json();
     DOM.selectSpecialty.innerHTML = '<option value="" disabled selected>— اختر الشعبة —</option>';
-    data.specialties.forEach(({ id, label }) => {
+    data.specialties.forEach((item) => {
       const opt = document.createElement('option');
-      opt.value = id; opt.textContent = label;
+      if (typeof item === 'string') {
+        opt.value = item; opt.textContent = item;
+      } else {
+        opt.value = item.id || item.value || item.label || item;
+        opt.textContent = item.label || item.id || item;
+      }
       DOM.selectSpecialty.appendChild(opt);
     });
     if (data.specialties.length === 1) {
-      DOM.selectSpecialty.value = data.specialties[0].id;
+      DOM.selectSpecialty.value = firstVal;
       DOM.selectSpecialty.disabled = false;
       await onSpecialtyChange();
     } else {
@@ -1035,9 +1049,14 @@ async function onSpecialtyChange() {
     const res  = await fetch(SUBJECTS_URL(state.selectedLevel, state.selectedYear, specialty));
     const data = await res.json();
     DOM.selectSubject.innerHTML = '<option value="" disabled selected>— اختر المادة —</option>';
-    data.subjects.forEach(({ id, label }) => {
+    data.subjects.forEach((item) => {
       const opt = document.createElement('option');
-      opt.value = id; opt.textContent = label;
+      if (typeof item === 'string') {
+        opt.value = item; opt.textContent = item;
+      } else {
+        opt.value = item.id || item.value || item.label || item;
+        opt.textContent = item.label || item.id || item;
+      }
       DOM.selectSubject.appendChild(opt);
     });
     DOM.selectSubject.disabled = false;
@@ -1072,7 +1091,7 @@ function setDifficulty(value, btn) {
   ['diff-easy','diff-medium','diff-hard'].forEach(id => {
     $( id).classList.remove('active-easy','active-medium','active-hard');
   });
-  btn.classList.add({ 'سهل':'active-easy','متوسط':'active-medium','صعب':'active-hard' }[value]);
+  const cls = { 'سهل':'active-easy','متوسط':'active-medium','صعب':'active-hard' }[value]; if (cls) btn.classList.add(cls);
 }
 
 async function handleGenerate() {
@@ -1117,7 +1136,7 @@ async function handleGenerate() {
     state.isGenerating = false;
     updateGenerateButton();
     showIdleState();
-    showError(err.message || 'فشل التوليد — يرجى المحاولة مرة أخرى.');
+    showError(err);
     return;
   }
 
@@ -1222,7 +1241,10 @@ function onCountdownExpired() {
 
 let _toastTimeout = null;
 function showError(message, ms = 5500) {
-  DOM.errorToastMsg.textContent = message;
+  let msg = message;
+  if (msg && typeof msg === 'object') msg = msg.message || msg.detail || JSON.stringify(msg);
+  if (!msg || typeof msg !== 'string') msg = 'حدث خطأ غير متوقع — يرجى المحاولة مرة أخرى.';
+  DOM.errorToastMsg.textContent = msg;
   DOM.errorToast.classList.add('visible');
   if (_toastTimeout) clearTimeout(_toastTimeout);
   _toastTimeout = setTimeout(() => DOM.errorToast.classList.remove('visible'), ms);
