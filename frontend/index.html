@@ -961,7 +961,9 @@ function setServerStatus(status) {
 async function loadLevels() {
   try {
     const res  = await fetch(LEVELS_URL);
+    if (!res.ok) { showError(`تعذّر تحميل بيانات المناهج (${res.status}) — تأكد من تشغيل الخادم.`); return; }
     const data = await res.json();
+    if (!data.levels || !Array.isArray(data.levels)) { showError('استجابة غير صحيحة من الخادم — levels'); return; }
     DOM.selectLevel.innerHTML = '<option value="" disabled selected>— اختر الطور —</option>';
     data.levels.forEach((item) => {
       const opt = document.createElement('option');
@@ -973,7 +975,7 @@ async function loadLevels() {
       }
       DOM.selectLevel.appendChild(opt);
     });
-  } catch { showError('تعذّر تحميل بيانات المناهج — تأكد من تشغيل الخادم.'); }
+  } catch (err) { showError(err); }
 }
 
 async function onLevelChange() {
@@ -988,7 +990,9 @@ async function onLevelChange() {
   updateGenerateButton();
   try {
     const res  = await fetch(YEARS_URL(level));
+    if (!res.ok) { showError(`تعذّر تحميل السنوات الدراسية (${res.status})`); return; }
     const data = await res.json();
+    if (!data.years || !Array.isArray(data.years)) { showError('استجابة غير صحيحة من الخادم — years'); return; }
     DOM.selectYear.innerHTML = '<option value="" disabled selected>— اختر السنة —</option>';
     data.years.forEach((item) => {
       const opt = document.createElement('option');
@@ -1001,7 +1005,7 @@ async function onLevelChange() {
       DOM.selectYear.appendChild(opt);
     });
     DOM.selectYear.disabled = false;
-  } catch { showError('تعذّر تحميل السنوات الدراسية.'); }
+  } catch (err) { showError(err); }
 }
 
 async function onYearChange() {
@@ -1015,7 +1019,9 @@ async function onYearChange() {
   updateGenerateButton();
   try {
     const res  = await fetch(SPECIALTIES_URL(state.selectedLevel, year));
+    if (!res.ok) { showError(`تعذّر تحميل الشعب الدراسية (${res.status})`); return; }
     const data = await res.json();
+    if (!data.specialties || !Array.isArray(data.specialties)) { showError('استجابة غير صحيحة من الخادم — specialties'); return; }
     DOM.selectSpecialty.innerHTML = '<option value="" disabled selected>— اختر الشعبة —</option>';
     data.specialties.forEach((item) => {
       const opt = document.createElement('option');
@@ -1027,6 +1033,8 @@ async function onYearChange() {
       }
       DOM.selectSpecialty.appendChild(opt);
     });
+    const firstItem = data.specialties[0];
+    const firstVal  = typeof firstItem === 'string' ? firstItem : (firstItem.id || firstItem.value || firstItem.label);
     if (data.specialties.length === 1) {
       DOM.selectSpecialty.value = firstVal;
       DOM.selectSpecialty.disabled = false;
@@ -1034,7 +1042,7 @@ async function onYearChange() {
     } else {
       DOM.selectSpecialty.disabled = false;
     }
-  } catch { showError('تعذّر تحميل الشعب الدراسية.'); }
+  } catch (err) { showError(err); }
 }
 
 async function onSpecialtyChange() {
@@ -1047,7 +1055,13 @@ async function onSpecialtyChange() {
   updateGenerateButton();
   try {
     const res  = await fetch(SUBJECTS_URL(state.selectedLevel, state.selectedYear, specialty));
+    if (!res.ok) {
+      let errMsg = `تعذّر تحميل المواد الدراسية (${res.status})`;
+      try { const e = await res.json(); if (e.detail) errMsg = e.detail; } catch {}
+      showError(errMsg); return;
+    }
     const data = await res.json();
+    if (!data.subjects || !Array.isArray(data.subjects)) { showError('استجابة غير صحيحة من الخادم — subjects'); return; }
     DOM.selectSubject.innerHTML = '<option value="" disabled selected>— اختر المادة —</option>';
     data.subjects.forEach((item) => {
       const opt = document.createElement('option');
@@ -1060,7 +1074,7 @@ async function onSpecialtyChange() {
       DOM.selectSubject.appendChild(opt);
     });
     DOM.selectSubject.disabled = false;
-  } catch { showError('تعذّر تحميل المواد الدراسية.'); }
+  } catch (err) { showError(err); }
 }
 
 function onSubjectChange()   { state.selectedSubject  = DOM.selectSubject.value;   updateGenerateButton(); }
