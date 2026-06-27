@@ -39,7 +39,7 @@ log = logging.getLogger("ostadi.gemini")
 # ---------------------------------------------------------------------------
 # RETRY POLICY CONSTANTS
 # ---------------------------------------------------------------------------
-MAX_RETRY_ATTEMPTS   = 6      # Maximum number of attempts before giving up
+MAX_RETRY_ATTEMPTS   = 2      # Maximum number of attempts before giving up
 BASE_BACKOFF_SECONDS = 2.0    # Initial wait time on first retry
 BACKOFF_MULTIPLIER   = 2.0    # Each retry doubles the wait
 MAX_BACKOFF_SECONDS  = 64.0   # Hard ceiling on wait time between retries
