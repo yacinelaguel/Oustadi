@@ -49,7 +49,7 @@ JITTER_RANGE         = 1.0    # ±1 second random jitter to prevent thundering h
 # GEMINI MODEL CONFIGURATION
 # ---------------------------------------------------------------------------
 GEMINI_MODEL_NAME = "gemini-2.0-flash-lite"
-GEMINI_MAX_TOKENS    = 8192   # Maximum output tokens — exams can be long
+GEMINI_MAX_TOKENS = 4096
 GEMINI_TEMPERATURE   = 0.4    # Low temp → deterministic, structured output
 GEMINI_TOP_P         = 0.9
 GEMINI_TOP_K         = 40
