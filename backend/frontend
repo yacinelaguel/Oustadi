@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+        content="أستاذي — منصة توليد الاختبارات الرسمية للمنظومة التربوية الجزائرية بالذكاء الاصطناعي" />
+  <title>أستاذي — مولّد الاختبارات الذكي</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"
+          defer></script>
+
+  <style>
+    :root {
+      --color-canvas:          #0B132B;
+      --color-surface:         #111C24;
+      --color-surface-2:       #162030;
+      --color-surface-3:       #1A2535;
+      --glass-low:             rgba(255, 255, 255, 0.04);
+      --glass-mid:             rgba(255, 255, 255, 0.06);
+      --glass-high:            rgba(255, 255, 255, 0.08);
+      --glass-stroke:          rgba(255, 255, 255, 0.10);
+      --glass-stroke-strong:   rgba(255, 255, 255, 0.15);
+      --accent-blue:           #2563EB;
+      --accent-blue-light:     #3B82F6;
+      --accent-blue-glow:      rgba(37, 99, 235, 0.18);
+      --accent-sky:            #0284C7;
+      --accent-sky-glow:       rgba(2, 132, 199, 0.14);
+      --text-primary:          rgba(255, 255, 255, 0.95);
+      --text-secondary:        rgba(255, 255, 255, 0.65);
+      --text-muted:            rgba(255, 255, 255, 0.38);
+      --text-accent:           #60A5FA;
+      --color-success:         #10B981;
+      --color-success-glow:    rgba(16, 185, 129, 0.20);
+      --color-warning:         #F59E0B;
+      --color-error:           #EF4444;
+      --color-error-glow:      rgba(239, 68, 68, 0.18);
+      --radius-sm:             8px;
+      --radius-md:             14px;
+      --radius-lg:             20px;
+      --radius-xl:             28px;
+      --ease-out-expo:         cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out-smooth:    cubic-bezier(0.4, 0, 0.2, 1);
+      --duration-fast:         200ms;
+      --duration-normal:       380ms;
+      --duration-slow:         520ms;
+      --duration-xslow:        700ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      font-family: 'Cairo', 'IBM Plex Sans Arabic',
+                   -apple-system, 'Helvetica Neue', system-ui, sans-serif;
+      background-color: var(--color-canvas);
+      color: var(--text-primary);
+      min-height: 100vh;
+      direction: rtl;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -120px;
+      right: -80px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(ellipse at center, rgba(29,78,216,0.07) 0%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -100px;
+      left: -60px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(ellipse at center, rgba(2,132,199,0.06) 0%, transparent 70%);
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-mid {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(37,99,235,0.04) 0%, transparent 65%);
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glass-card {
+      background: var(--glass-low);
+      border: 1px solid var(--glass-stroke);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-lg);
+      transition: background var(--duration-normal) var(--ease-out-expo),
+                  border-color var(--duration-normal) var(--ease-out-expo),
+                  box-shadow var(--duration-normal) var(--ease-out-expo),
+                  transform var(--duration-slow) var(--ease-out-expo);
+    }
+
+    .glass-card:hover {
+      background: var(--glass-mid);
+      border-color: var(--glass-stroke-strong);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.04) inset;
+      transform: translateY(-3px);
+    }
+
+    .glass-card-static {
+      background: var(--glass-low);
+      border: 1px solid var(--glass-stroke);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-lg);
+    }
+
+    .text-display {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .text-heading {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      font-weight: 700;
+      line-height: 1.35;
+      color: var(--text-primary);
+    }
+
+    .text-label {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: 0.01em;
+    }
+
+    .text-caption {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .ostadi-select {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      background: var(--glass-low);
+      border: 1px solid var(--glass-stroke);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 13px 18px 13px 44px;
+      direction: rtl;
+      cursor: pointer;
+      transition: background var(--duration-fast) var(--ease-out-expo),
+                  border-color var(--duration-fast) var(--ease-out-expo),
+                  box-shadow var(--duration-fast) var(--ease-out-expo);
+      outline: none;
+    }
+
+    .ostadi-select:focus {
+      background: var(--glass-mid);
+      border-color: var(--accent-blue-light);
+      box-shadow: 0 0 0 3px var(--accent-blue-glow);
+    }
+
+    .ostadi-select:disabled {
+      opacity: 0.36;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .ostadi-select option {
+      background: #111C24;
+      color: var(--text-primary);
+      font-family: 'Cairo', sans-serif;
+      padding: 8px;
+    }
+
+    .select-wrapper { position: relative; }
+
+    .select-wrapper::after {
+      content: '';
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: contain;
+      pointer-events: none;
+    }
+
+    .ostadi-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--glass-stroke);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .ostadi-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-blue-light), var(--accent-sky));
+      cursor: pointer;
+      box-shadow: 0 0 0 4px var(--accent-blue-glow);
+      transition: box-shadow var(--duration-fast) var(--ease-out-expo),
+                  transform var(--duration-fast) var(--ease-out-expo);
+    }
+
+    .ostadi-range::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 7px var(--accent-blue-glow);
+      transform: scale(1.12);
+    }
+
+    .btn-generate {
+      position: relative;
+      width: 100%;
+      padding: 16px 28px;
+      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-sky) 100%);
+      border: none;
+      border-radius: var(--radius-md);
+      color: #ffffff;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform var(--duration-normal) var(--ease-out-expo),
+                  box-shadow var(--duration-normal) var(--ease-out-expo),
+                  opacity var(--duration-fast) var(--ease-in-out-smooth);
+      box-shadow: 0 4px 20px rgba(37,99,235,0.35), 0 1px 0 rgba(255,255,255,0.12) inset;
+    }
+
+    .btn-generate::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .btn-generate:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(37,99,235,0.50), 0 1px 0 rgba(255,255,255,0.15) inset;
+    }
+
+    .btn-generate:active:not(:disabled) { transform: translateY(0px) scale(0.99); }
+
+    .btn-generate:disabled { opacity: 0.48; cursor: not-allowed; transform: none; }
+
+    .btn-generate::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
+      transition: left 0.55s var(--ease-out-expo);
+    }
+
+    .btn-generate:hover:not(:disabled)::after { left: 140%; }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 22px;
+      border-radius: var(--radius-md);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform var(--duration-normal) var(--ease-out-expo),
+                  box-shadow var(--duration-normal) var(--ease-out-expo),
+                  background var(--duration-fast) var(--ease-out-expo);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-download-pdf {
+      background: linear-gradient(135deg, #DC2626, #B91C1C);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(220,38,38,0.30);
+    }
+
+    .btn-download-pdf:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(220,38,38,0.44); }
+
+    .btn-download-correction {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(5,150,105,0.30);
+    }
+
+    .btn-download-correction:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(5,150,105,0.44); }
+
+    .btn-download-docx {
+      background: linear-gradient(135deg, #2563EB, #1D4ED8);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.30);
+    }
+
+    .btn-download-docx:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,99,235,0.44); }
+
+    .timeline-step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      transition: background var(--duration-normal) var(--ease-out-expo),
+                  transform var(--duration-normal) var(--ease-out-expo);
+    }
+
+    .timeline-step.active { background: var(--glass-low); transform: translateX(-4px); }
+    .timeline-step.done   { background: rgba(16,185,129,0.06); }
+
+    .step-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+      transition: background var(--duration-normal) var(--ease-out-expo),
+                  box-shadow var(--duration-normal) var(--ease-out-expo);
+    }
+
+    .step-icon.pending { background: var(--glass-low); border: 1px solid var(--glass-stroke); color: var(--text-muted); }
+    .step-icon.active  { background: var(--accent-blue-glow); border: 1px solid var(--accent-blue-light); color: var(--accent-blue-light); box-shadow: 0 0 14px var(--accent-blue-glow); animation: pulse-icon 1.4s ease-in-out infinite; }
+    .step-icon.done    { background: var(--color-success-glow); border: 1px solid var(--color-success); color: var(--color-success); }
+
+    @keyframes pulse-icon {
+      0%, 100% { box-shadow: 0 0 10px var(--accent-blue-glow); }
+      50%       { box-shadow: 0 0 22px rgba(37,99,235,0.40); }
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--glass-stroke-strong);
+      border-top-color: var(--accent-blue-light);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--glass-low) 25%, var(--glass-mid) 50%, var(--glass-low) 75%);
+      background-size: 200% 100%;
+      border-radius: var(--radius-sm);
+      animation: shimmer 1.6s ease-in-out infinite;
+    }
+
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    .fade-in    { animation: fadeIn var(--duration-slow) var(--ease-out-expo) both; }
+    .fade-in-up { animation: fadeInUp var(--duration-slow) var(--ease-out-expo) both; }
+
+    @keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInUp  { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    .delay-100 { animation-delay: 100ms; }
+    .delay-200 { animation-delay: 200ms; }
+    .delay-300 { animation-delay: 300ms; }
+    .delay-400 { animation-delay: 400ms; }
+    .delay-500 { animation-delay: 500ms; }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11,19,43,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-stroke);
+      padding: 0 2rem;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 14px;
+      background: var(--accent-blue-glow);
+      border: 1px solid rgba(59,130,246,0.28);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-accent);
+      margin-bottom: 12px;
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--glass-stroke-strong); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+    .qr-placeholder {
+      width: 100px;
+      height: 100px;
+      border: 2px dashed var(--glass-stroke-strong);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .difficulty-btn {
+      flex: 1;
+      padding: 9px 8px;
+      border-radius: var(--radius-sm);
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid var(--glass-stroke);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background var(--duration-fast) var(--ease-out-expo),
+                  color var(--duration-fast) var(--ease-out-expo),
+                  border-color var(--duration-fast) var(--ease-out-expo),
+                  box-shadow var(--duration-fast) var(--ease-out-expo);
+      text-align: center;
+    }
+
+    .difficulty-btn:hover { background: var(--glass-low); color: var(--text-primary); }
+    .difficulty-btn.active-easy   { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.40); color: #34D399; box-shadow: 0 0 10px rgba(16,185,129,0.12); }
+    .difficulty-btn.active-medium { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.40); color: #FCD34D; box-shadow: 0 0 10px rgba(245,158,11,0.12); }
+    .difficulty-btn.active-hard   { background: rgba(239,68,68,0.12);  border-color: rgba(239,68,68,0.40);  color: #F87171; box-shadow: 0 0 10px rgba(239,68,68,0.12); }
+
+    .error-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(239,68,68,0.14);
+      border: 1px solid rgba(239,68,68,0.35);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-md);
+      padding: 14px 24px;
+      color: #FCA5A5;
+      font-size: 0.92rem;
+      font-weight: 500;
+      font-family: 'Cairo', sans-serif;
+      z-index: 999;
+      transition: transform 0.45s var(--ease-out-expo), opacity 0.45s var(--ease-out-expo);
+      opacity: 0;
+      max-width: 480px;
+      text-align: center;
+      direction: rtl;
+    }
+
+    .error-toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    .z-content { position: relative; z-index: 1; }
+
+    .divider { width: 100%; height: 1px; background: var(--glass-stroke); margin: 20px 0; }
+
+    .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 600; }
+    .badge-blue { background: var(--accent-blue-glow); border: 1px solid rgba(59,130,246,0.25); color: var(--text-accent); }
+    .badge-green { background: var(--color-success-glow); border: 1px solid rgba(16,185,129,0.28); color: #34D399; }
+
+    .creator-signature {
+      font-family: -apple-system, 'SF Pro Display', 'SF Pro Text',
+                   'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .creator-signature span { color: var(--text-accent); }
+
+    @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr !important; } }
+    @media (max-width: 640px)  { .navbar { padding: 0 1rem; height: 58px; } .btn-download { padding: 11px 16px; font-size: 0.84rem; } }
+  </style>
+</head>
+
+<body>
+<div class="glow-mid" aria-hidden="true"></div>
+
+<nav class="navbar z-content" role="navigation" aria-label="شريط التنقل الرئيسي">
+  <div style="display:flex; align-items:center; gap:14px;">
+    <img src="/static/logo.png" alt="شعار أستاذي"
+         style="height:38px; width:auto; object-fit:contain; border-radius:8px; opacity:0; transition:opacity 0.5s ease;"
+         onload="this.style.opacity='1'" onerror="this.style.display='none'" />
+    <div style="display:flex; flex-direction:column; gap:1px;">
+      <span style="font-size:1.25rem; font-weight:800; color:var(--text-primary); line-height:1; letter-spacing:-0.01em;">أستاذي</span>
+      <span class="text-caption">مولّد الاختبارات الذكي</span>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div id="server-status-dot" style="width:8px; height:8px; border-radius:50%; background:var(--color-warning); transition:background 0.4s ease; box-shadow:0 0 6px var(--color-warning);" title="حالة الخادم"></div>
+    <span id="server-status-label" class="text-caption" style="font-size:0.75rem;">جاري التحقق...</span>
+  </div>
+</nav>
+
+<main class="z-content" style="max-width:1400px; margin:0 auto; padding:2.5rem 2rem 3rem;">
+
+  <div class="fade-in-up" style="margin-bottom:2.5rem; text-align:center;">
+    <div class="section-pill">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      مدعوم بالذكاء الاصطناعي — Gemini 1.5 Flash
+    </div>
+    <h1 class="text-display" style="margin-bottom:0.6rem;">
+      توليد اختبارات رسمية
+      <span style="background:linear-gradient(135deg, var(--accent-blue-light), var(--accent-sky)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">بالمقاييس الجزائرية</span>
+    </h1>
+    <p style="color:var(--text-secondary); font-size:1rem; font-weight:400; max-width:560px; margin:0 auto; line-height:1.7;">
+      اختر المرحلة والمادة والفصل، ودع الذكاء الاصطناعي يُنشئ موضوع اختبار رسمياً مع التصحيح النموذجي وسلّم التنقيط جاهزاً للطباعة.
+    </p>
+  </div>
+
+  <div class="main-grid" style="display:grid; grid-template-columns:1fr 1.15fr; gap:1.75rem; align-items:start;">
+
+    <div class="fade-in-up delay-100" style="display:flex; flex-direction:column; gap:1.25rem;">
+
+      <div class="glass-card-static" style="padding:1.6rem;">
+        <div class="section-pill" style="margin-bottom:1rem;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          المنهج الدراسي
+        </div>
+        <div style="display:flex; flex-direction:column; gap:1.1rem;">
+          <div>
+            <label class="text-label" style="display:block; margin-bottom:7px;" for="select-level">الطور التعليمي</label>
+            <div class="select-wrapper">
+              <select id="select-level" class="ostadi-select" aria-label="اختر الطور التعليمي">
+                <option value="" disabled selected>— اختر الطور —</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="text-label" style="display:block; margin-bottom:7px;" for="select-year">السنة الدراسية</label>
+            <div class="select-wrapper">
+              <select id="select-year" class="ostadi-select" disabled aria-label="اختر السنة الدراسية">
+                <option value="" disabled selected>— اختر السنة —</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="text-label" style="display:block; margin-bottom:7px;" for="select-specialty">الشعبة / التخصص</label>
+            <div class="select-wrapper">
+              <select id="select-specialty" class="ostadi-select" disabled aria-label="اختر الشعبة">
+                <option value="" disabled selected>— اختر الشعبة —</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="text-label" style="display:block; margin-bottom:7px;" for="select-subject">المادة</label>
+            <div class="select-wrapper">
+              <select id="select-subject" class="ostadi-select" disabled aria-label="اختر المادة">
+                <option value="" disabled selected>— اختر المادة —</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card-static" style="padding:1.6rem;">
+        <div class="section-pill" style="margin-bottom:1rem;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          إعدادات الاختبار
+        </div>
+        <div style="display:flex; flex-direction:column; gap:1.2rem;">
+          <div>
+            <label class="text-label" style="display:block; margin-bottom:7px;" for="select-trimester">الفصل الدراسي</label>
+            <div class="select-wrapper">
+              <select id="select-trimester" class="ostadi-select" aria-label="اختر الفصل الدراسي">
+                <option value="الفصل الأول">الفصل الأول</option>
+                <option value="الفصل الثاني">الفصل الثاني</option>
+                <option value="الفصل الثالث">الفصل الثالث</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <label class="text-label" for="range-duration">مدة الاختبار</label>
+              <div style="display:flex; align-items:center; gap:5px; background:var(--accent-blue-glow); border:1px solid rgba(59,130,246,0.25); border-radius:100px; padding:3px 12px;">
+                <span id="duration-display" style="font-family:-apple-system,'Helvetica Neue',sans-serif; font-weight:700; font-size:0.88rem; color:var(--text-accent);">60</span>
+                <span class="text-caption">دقيقة</span>
+              </div>
+            </div>
+            <input type="range" id="range-duration" class="ostadi-range" min="30" max="180" step="15" value="60" aria-label="مدة الاختبار بالدقائق" />
+            <div style="display:flex; justify-content:space-between; margin-top:6px;">
+              <span class="text-caption">30 د</span>
+              <span class="text-caption">180 د</span>
+            </div>
+          </div>
+          <div>
+            <label class="text-label" style="display:block; margin-bottom:9px;">درجة الصعوبة</label>
+            <div style="display:flex; gap:8px;" role="group" aria-label="اختر درجة الصعوبة">
+              <button class="difficulty-btn active-easy" data-value="سهل" id="diff-easy" type="button" onclick="setDifficulty('سهل', this)">سهل</button>
+              <button class="difficulty-btn" data-value="متوسط" id="diff-medium" type="button" onclick="setDifficulty('متوسط', this)">متوسط</button>
+              <button class="difficulty-btn" data-value="صعب" id="diff-hard" type="button" onclick="setDifficulty('صعب', this)">صعب</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="btn-generate" type="button" onclick="handleGenerate()" disabled aria-label="توليد الاختبار">
+        <span id="btn-generate-label">أكمل الخيارات أولاً</span>
+      </button>
+
+    </div>
+
+    <div class="fade-in-up delay-200" id="workspace-panel" style="display:flex; flex-direction:column; gap:1.25rem;">
+
+      <div id="state-idle" class="glass-card-static" style="padding:3.5rem 2rem; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; min-height:420px; gap:1.2rem;">
+        <div style="width:72px; height:72px; border-radius:50%; background:var(--glass-low); border:1px solid var(--glass-stroke); display:flex; align-items:center; justify-content:center; margin-bottom:0.4rem;">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <h3 class="text-heading" style="color:var(--text-secondary); font-weight:600;">في انتظار الإعدادات</h3>
+        <p class="text-caption" style="max-width:300px; line-height:1.75;">اختر الطور والسنة والشعبة والمادة من القائمة اليسرى، ثم اضغط على زر التوليد لإنشاء اختبارك.</p>
+        <div style="width:100%; max-width:340px; margin-top:1rem; display:flex; flex-direction:column; gap:10px; opacity:0.5;" aria-hidden="true">
+          <div class="skeleton" style="height:14px; width:70%; margin-right:auto;"></div>
+          <div class="skeleton" style="height:10px; width:100%;"></div>
+          <div class="skeleton" style="height:10px; width:88%;"></div>
+          <div class="skeleton" style="height:10px; width:94%;"></div>
+          <div class="skeleton" style="height:10px; width:76%;"></div>
+          <div style="height:8px;"></div>
+          <div class="skeleton" style="height:14px; width:55%; margin-right:auto;"></div>
+          <div class="skeleton" style="height:10px; width:100%;"></div>
+          <div class="skeleton" style="height:10px; width:83%;"></div>
+        </div>
+      </div>
+
+      <div id="state-generating" class="glass-card-static" style="padding:2rem 1.75rem; display:none; flex-direction:column; gap:0.5rem; min-height:420px;">
+        <div style="margin-bottom:1.2rem;">
+          <h3 class="text-heading" style="margin-bottom:4px;">جاري التوليد...</h3>
+          <p class="text-caption">يُرجى الانتظار — قد يستغرق التوليد من 20 إلى 60 ثانية</p>
+        </div>
+        <div style="width:100%; height:3px; background:var(--glass-stroke); border-radius:2px; overflow:hidden; margin-bottom:1.6rem;">
+          <div id="progress-bar" style="height:100%; width:0%; background:linear-gradient(90deg, var(--accent-blue), var(--accent-sky)); border-radius:2px; transition:width 0.8s var(--ease-out-expo);"></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <div class="timeline-step" id="step-1">
+            <div class="step-icon pending" id="step-1-icon">1</div>
+            <div style="flex:1;">
+              <div style="font-size:0.92rem; font-weight:600; color:var(--text-secondary); margin-bottom:2px; transition:color 0.3s ease;" id="step-1-label">قراءة المخططات السنوية للوزارة...</div>
+              <div class="text-caption" id="step-1-sub">التحقق من المنهج الرسمي للفصل المختار</div>
+            </div>
+          </div>
+          <div style="width:1px; height:20px; background:var(--glass-stroke); margin-right:29px;" aria-hidden="true"></div>
+          <div class="timeline-step" id="step-2">
+            <div class="step-icon pending" id="step-2-icon">2</div>
+            <div style="flex:1;">
+              <div style="font-size:0.92rem; font-weight:600; color:var(--text-secondary); margin-bottom:2px; transition:color 0.3s ease;" id="step-2-label">صياغة نص الموضوع والأسئلة عبر الذكاء الاصطناعي...</div>
+              <div class="text-caption" id="step-2-sub">Gemini 1.5 Flash يُعالج الطلب</div>
+            </div>
+          </div>
+          <div style="width:1px; height:20px; background:var(--glass-stroke); margin-right:29px;" aria-hidden="true"></div>
+          <div class="timeline-step" id="step-3">
+            <div class="step-icon pending" id="step-3-icon">3</div>
+            <div style="flex:1;">
+              <div style="font-size:0.92rem; font-weight:600; color:var(--text-secondary); margin-bottom:2px; transition:color 0.3s ease;" id="step-3-label">بناء ملف الـ DOCX القابل للتعديل...</div>
+              <div class="text-caption" id="step-3-sub">تنسيق الموضوع بخط أميري RTL</div>
+            </div>
+          </div>
+          <div style="width:1px; height:20px; background:var(--glass-stroke); margin-right:29px;" aria-hidden="true"></div>
+          <div class="timeline-step" id="step-4">
+            <div class="step-icon pending" id="step-4-icon">4</div>
+            <div style="flex:1;">
+              <div style="font-size:0.92rem; font-weight:600; color:var(--text-secondary); margin-bottom:2px; transition:color 0.3s ease;" id="step-4-label">تصدير نسخة الـ PDF الجاهزة للطباعة...</div>
+              <div class="text-caption" id="step-4-sub">ترقيم الصفحات وتضمين الترويسة الرسمية</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="state-done" style="display:none; flex-direction:column; gap:1.1rem;">
+        <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.22); border-radius:var(--radius-md); padding:1.1rem 1.4rem; display:flex; align-items:center; gap:12px;" class="fade-in">
+          <div style="width:36px; height:36px; border-radius:50%; background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.35); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div style="font-size:0.92rem; font-weight:700; color:#34D399; margin-bottom:2px;">تم توليد الاختبار بنجاح</div>
+            <div class="text-caption" id="done-meta-text">الملفات متاحة للتحميل لمدة 30 دقيقة</div>
+          </div>
+          <div style="margin-right:auto; text-align:left;">
+            <div style="font-family:-apple-system,'Helvetica Neue',sans-serif; font-weight:700; font-size:1.1rem; color:var(--text-accent); direction:ltr;" id="countdown-display">30:00</div>
+            <div class="text-caption">متبقي</div>
+          </div>
+        </div>
+
+        <div class="glass-card fade-in delay-100" style="padding:1.4rem 1.6rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:42px; height:42px; border-radius:10px; background:rgba(220,38,38,0.12); border:1px solid rgba(220,38,38,0.25); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              </div>
+              <div>
+                <div style="font-size:0.96rem; font-weight:700; color:var(--text-primary); margin-bottom:2px;">ورقة الاختبار</div>
+                <div class="text-caption">PDF جاهز للطباعة — موضوع رسمي</div>
+              </div>
+            </div>
+            <a id="download-exam-pdf" href="#" class="btn-download btn-download-pdf" download aria-label="تحميل ورقة الاختبار PDF">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              تحميل PDF
+            </a>
+          </div>
+        </div>
+
+        <div class="glass-card fade-in delay-200" style="padding:1.4rem 1.6rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:42px; height:42px; border-radius:10px; background:rgba(5,150,105,0.12); border:1px solid rgba(5,150,105,0.25); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </div>
+              <div>
+                <div style="font-size:0.96rem; font-weight:700; color:var(--text-primary); margin-bottom:2px;">التصحيح النموذجي</div>
+                <div class="text-caption">PDF — سلّم التنقيط الكامل / 20</div>
+              </div>
+            </div>
+            <a id="download-correction-pdf" href="#" class="btn-download btn-download-correction" download aria-label="تحميل التصحيح النموذجي PDF">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              تحميل PDF
+            </a>
+          </div>
+        </div>
+
+        <div class="glass-card fade-in delay-300" style="padding:1.4rem 1.6rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:42px; height:42px; border-radius:10px; background:rgba(37,99,235,0.12); border:1px solid rgba(37,99,235,0.25); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </div>
+              <div>
+                <div style="font-size:0.96rem; font-weight:700; color:var(--text-primary); margin-bottom:2px;">موضوع قابل للتعديل</div>
+                <div class="text-caption">DOCX — يفتح في Microsoft Word</div>
+              </div>
+            </div>
+            <a id="download-exam-docx" href="#" class="btn-download btn-download-docx" download aria-label="تحميل الموضوع القابل للتعديل DOCX">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              تحميل DOCX
+            </a>
+          </div>
+        </div>
+
+        <button type="button" onclick="resetToIdle()"
+                style="width:100%; padding:12px; background:transparent; border:1px solid var(--glass-stroke-strong); border-radius:var(--radius-md); color:var(--text-secondary); font-family:'Cairo',sans-serif; font-size:0.92rem; font-weight:600; cursor:pointer; transition:background var(--duration-fast) var(--ease-out-expo), color var(--duration-fast) var(--ease-out-expo);"
+                onmouseover="this.style.background='var(--glass-low)'; this.style.color='var(--text-primary)';"
+                onmouseout="this.style.background='transparent'; this.style.color='var(--text-secondary)';">
+          ↩ توليد اختبار جديد
+        </button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="z-content" style="margin-top:4rem; border-top:1px solid var(--glass-stroke); background:rgba(11,19,43,0.60); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); padding:3rem 2rem 2.5rem;">
+  <div style="max-width:1400px; margin:0 auto;">
+    <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:2.5rem; margin-bottom:2.5rem; align-items:start;">
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <img src="/static/logo.png" alt="شعار أستاذي"
+               style="height:48px; width:auto; object-fit:contain; border-radius:10px; opacity:0; transition:opacity 0.5s ease;"
+               onload="this.style.opacity='1'" onerror="this.style.display='none'" />
+          <div>
+            <div style="font-size:1.35rem; font-weight:800; color:var(--text-primary); line-height:1.1; letter-spacing:-0.01em;">أستاذي</div>
+            <div class="text-caption" style="margin-top:3px;">مولّد الاختبارات الرسمية الجزائرية</div>
+          </div>
+        </div>
+        <p style="color:var(--text-secondary); font-size:0.88rem; line-height:1.75; max-width:360px;">
+          منصة ذكاء اصطناعي مخصصة للأساتذة الجزائريين لتوليد مواضيع اختبارات رسمية مطابقة للمخططات السنوية لوزارة التربية الوطنية، مع التصحيح النموذجي وسلّم التنقيط.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:4px; padding-top:4px; border-top:1px solid var(--glass-stroke); margin-top:4px;">
+          <span style="color:var(--text-muted); font-size:0.75rem; font-family:'Cairo',sans-serif;">تم تطوير المنصة بكل إتقان بواسطة</span>
+          <span class="creator-signature">by: <span>LAGUEL YACINE</span></span>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.9rem;">
+        <div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:2px;">مبني بواسطة</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; direction:rtl;">
+          <div class="badge badge-blue">Gemini 1.5 Flash</div>
+          <div class="badge badge-blue">FastAPI</div>
+          <div class="badge badge-blue">Python 3.11</div>
+          <div class="badge" style="background:rgba(220,38,38,0.10); border:1px solid rgba(220,38,38,0.22); color:#FCA5A5;">ReportLab PDF</div>
+          <div class="badge" style="background:rgba(5,150,105,0.10); border:1px solid rgba(5,150,105,0.22); color:#6EE7B7;">python-docx</div>
+          <div class="badge" style="background:rgba(245,158,11,0.10); border:1px solid rgba(245,158,11,0.22); color:#FDE68A;">خط أميري</div>
+        </div>
+        <a href="/api/docs" target="_blank" rel="noopener noreferrer"
+           style="display:inline-flex; align-items:center; gap:7px; color:var(--text-accent); font-size:0.82rem; font-weight:500; text-decoration:none; margin-top:6px; transition:opacity 0.2s ease;"
+           onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          توثيق الـ API
+        </a>
+      </div>
+    </div>
+
+    <div style="background:var(--glass-low); border:1px solid var(--glass-stroke); border-radius:var(--radius-lg); padding:2rem; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:1.5rem;">
+        <div style="width:36px; height:36px; border-radius:10px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.1rem;">💛</div>
+        <div>
+          <div style="font-size:1rem; font-weight:700; color:var(--text-primary);">تبرع لهذا المشروع — Support This Project</div>
+          <div class="text-caption">ساعد في استمرار تطوير أستاذي مجاناً للأساتذة الجزائريين</div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr auto; gap:1.5rem; align-items:start;">
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          <div style="background:var(--glass-low); border:1px solid var(--glass-stroke); border-radius:var(--radius-md); padding:1rem 1.2rem;">
+            <div class="text-label" style="margin-bottom:8px; font-size:0.76rem;">حساب CCP — Compte CCP</div>
+            <div style="font-family:-apple-system,'Helvetica Neue',monospace; font-weight:700; font-size:1.05rem; color:var(--text-primary); letter-spacing:0.06em; direction:ltr; text-align:left;">XXXXXXXX — Cle: XX</div>
+            <div class="text-caption" style="margin-top:5px; direction:rtl;">رقم الحساب — يُحدَّث قريباً</div>
+          </div>
+          <div style="background:var(--glass-low); border:1px solid var(--glass-stroke); border-radius:var(--radius-md); padding:1rem 1.2rem;">
+            <div class="text-label" style="margin-bottom:8px; font-size:0.76rem;">RIP BaridiMob — تحويل فوري</div>
+            <div style="font-family:-apple-system,'Helvetica Neue',monospace; font-weight:700; font-size:0.88rem; color:var(--text-primary); letter-spacing:0.05em; direction:ltr; text-align:left; word-break:break-all;">00799999 XXXXXXXXXXXXXXXXXX</div>
+            <div class="text-caption" style="margin-top:5px; direction:rtl;">20 رقماً — يُحدَّث قريباً</div>
+          </div>
+          <p style="color:var(--text-muted); font-size:0.78rem; line-height:1.7; direction:rtl;">كل تبرع، مهما كان صغيراً، يساعد في تغطية تكاليف الخادم ويشجع على إضافة ميزات جديدة لخدمة أساتذة الجزائر. شكراً جزيلاً على دعمكم. 🤍</p>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+          <div class="qr-placeholder">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg>
+            <span style="font-size:0.65rem; color:var(--text-muted);">QR Code<br/>قريباً</span>
+          </div>
+          <span class="text-caption" style="font-size:0.7rem; text-align:center;">امسح للتبرع<br/>عبر BaridiMob</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem; padding-top:1.2rem; border-top:1px solid var(--glass-stroke); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+      <span class="text-caption">2025-2026 أستاذي — جميع الحقوق محفوظة لياسين لعقال</span>
+      <span class="creator-signature" style="font-size:0.78rem;">Crafted with precision by: <span>LAGUEL YACINE</span></span>
+    </div>
+  </div>
+</footer>
+
+<div class="error-toast" id="error-toast" role="alert" aria-live="assertive">
+  <span id="error-toast-message"></span>
+</div>
+
+<script>
+'use strict';
+
+const API_BASE         = '';
+const HEALTH_CHECK_URL = `${API_BASE}/api/health`;
+const LEVELS_URL       = `${API_BASE}/api/curriculum/levels`;
+const YEARS_URL        = (level)                  => `${API_BASE}/api/curriculum/years/${encodeURIComponent(level)}`;
+const SPECIALTIES_URL  = (level, year)            => `${API_BASE}/api/curriculum/specialties/${encodeURIComponent(level)}/${encodeURIComponent(year)}`;
+const SUBJECTS_URL     = (level, year, specialty) => `${API_BASE}/api/curriculum/subjects/${encodeURIComponent(level)}/${encodeURIComponent(year)}/${encodeURIComponent(specialty)}`;
+const GENERATE_URL     = `${API_BASE}/api/generate`;
+const DOWNLOAD_BASE    = `${API_BASE}`;
+
+const state = {
+  selectedLevel:      '',
+  selectedYear:       '',
+  selectedSpecialty:  '',
+  selectedSubject:    '',
+  selectedTrimester:  'الفصل الأول',
+  selectedDuration:   60,
+  selectedDifficulty: 'سهل',
+  isGenerating:       false,
+  countdownInterval:  null,
+  countdownSeconds:   1800,
+};
+
+const $ = (id) => document.getElementById(id);
+
+const DOM = {
+  selectLevel:         $('select-level'),
+  selectYear:          $('select-year'),
+  selectSpecialty:     $('select-specialty'),
+  selectSubject:       $('select-subject'),
+  selectTrimester:     $('select-trimester'),
+  rangeDuration:       $('range-duration'),
+  durationDisplay:     $('duration-display'),
+  btnGenerate:         $('btn-generate'),
+  btnGenerateLabel:    $('btn-generate-label'),
+  stateIdle:           $('state-idle'),
+  stateGenerating:     $('state-generating'),
+  stateDone:           $('state-done'),
+  progressBar:         $('progress-bar'),
+  errorToast:          $('error-toast'),
+  errorToastMsg:       $('error-toast-message'),
+  serverStatusDot:     $('server-status-dot'),
+  serverStatusLabel:   $('server-status-label'),
+  doneMeta:            $('done-meta-text'),
+  countdownDisplay:    $('countdown-display'),
+  downloadExamPdf:     $('download-exam-pdf'),
+  downloadCorrPdf:     $('download-correction-pdf'),
+  downloadDocx:        $('download-exam-docx'),
+};
+
+async function checkServerHealth() {
+  try {
+    const res = await fetch(HEALTH_CHECK_URL, { method: 'GET', signal: AbortSignal.timeout(4000) });
+    setServerStatus(res.ok ? 'online' : 'degraded');
+  } catch { setServerStatus('offline'); }
+}
+
+function setServerStatus(status) {
+  const cfg = {
+    online:   { color: 'var(--color-success)', text: 'الخادم يعمل' },
+    degraded: { color: 'var(--color-warning)', text: 'استجابة بطيئة' },
+    offline:  { color: 'var(--color-error)',   text: 'الخادم غير متاح' },
+  }[status] || { color: 'var(--color-error)', text: 'غير متاح' };
+  DOM.serverStatusDot.style.background = cfg.color;
+  DOM.serverStatusDot.style.boxShadow  = `0 0 6px ${cfg.color}`;
+  DOM.serverStatusLabel.textContent    = cfg.text;
+}
+
+async function loadLevels() {
+  try {
+    const res  = await fetch(LEVELS_URL);
+    const data = await res.json();
+    DOM.selectLevel.innerHTML = '<option value="" disabled selected>— اختر الطور —</option>';
+    data.levels.forEach((item) => {
+      const opt = document.createElement('option');
+      if (typeof item === 'string') {
+        opt.value = item; opt.textContent = item;
+      } else {
+        opt.value = item.id || item.value || item.label || item;
+        opt.textContent = item.sub ? `${item.label}  (${item.sub})` : (item.label || item.id || item);
+      }
+      DOM.selectLevel.appendChild(opt);
+    });
+  } catch { showError('تعذّر تحميل بيانات المناهج — تأكد من تشغيل الخادم.'); }
+}
+
+async function onLevelChange() {
+  const level = DOM.selectLevel.value;
+  if (!level) return;
+  state.selectedLevel = level;
+  state.selectedYear = state.selectedSpecialty = state.selectedSubject = '';
+  resetSelect(DOM.selectYear,      '— اختر السنة —');
+  resetSelect(DOM.selectSpecialty, '— اختر الشعبة —');
+  resetSelect(DOM.selectSubject,   '— اختر المادة —');
+  DOM.selectYear.disabled = DOM.selectSpecialty.disabled = DOM.selectSubject.disabled = true;
+  updateGenerateButton();
+  try {
+    const res  = await fetch(YEARS_URL(level));
+    const data = await res.json();
+    DOM.selectYear.innerHTML = '<option value="" disabled selected>— اختر السنة —</option>';
+    data.years.forEach((item) => {
+      const opt = document.createElement('option');
+      if (typeof item === 'string') {
+        opt.value = item; opt.textContent = item;
+      } else {
+        opt.value = item.code || item.id || item.value || item.label || item;
+        opt.textContent = item.label || item.code || item.id || item;
+      }
+      DOM.selectYear.appendChild(opt);
+    });
+    DOM.selectYear.disabled = false;
+  } catch { showError('تعذّر تحميل السنوات الدراسية.'); }
+}
+
+async function onYearChange() {
+  const year = DOM.selectYear.value;
+  if (!year) return;
+  state.selectedYear = year;
+  state.selectedSpecialty = state.selectedSubject = '';
+  resetSelect(DOM.selectSpecialty, '— اختر الشعبة —');
+  resetSelect(DOM.selectSubject,   '— اختر المادة —');
+  DOM.selectSpecialty.disabled = DOM.selectSubject.disabled = true;
+  updateGenerateButton();
+  try {
+    const res  = await fetch(SPECIALTIES_URL(state.selectedLevel, year));
+    const data = await res.json();
+    DOM.selectSpecialty.innerHTML = '<option value="" disabled selected>— اختر الشعبة —</option>';
+    data.specialties.forEach((item) => {
+      const opt = document.createElement('option');
+      if (typeof item === 'string') {
+        opt.value = item; opt.textContent = item;
+      } else {
+        opt.value = item.id || item.value || item.label || item;
+        opt.textContent = item.label || item.id || item;
+      }
+      DOM.selectSpecialty.appendChild(opt);
+    });
+    if (data.specialties.length === 1) {
+      DOM.selectSpecialty.value = firstVal;
+      DOM.selectSpecialty.disabled = false;
+      await onSpecialtyChange();
+    } else {
+      DOM.selectSpecialty.disabled = false;
+    }
+  } catch { showError('تعذّر تحميل الشعب الدراسية.'); }
+}
+
+async function onSpecialtyChange() {
+  const specialty = DOM.selectSpecialty.value;
+  if (!specialty) return;
+  state.selectedSpecialty = specialty;
+  state.selectedSubject = '';
+  resetSelect(DOM.selectSubject, '— اختر المادة —');
+  DOM.selectSubject.disabled = true;
+  updateGenerateButton();
+  try {
+    const res  = await fetch(SUBJECTS_URL(state.selectedLevel, state.selectedYear, specialty));
+    const data = await res.json();
+    DOM.selectSubject.innerHTML = '<option value="" disabled selected>— اختر المادة —</option>';
+    data.subjects.forEach((item) => {
+      const opt = document.createElement('option');
+      if (typeof item === 'string') {
+        opt.value = item; opt.textContent = item;
+      } else {
+        opt.value = item.id || item.value || item.label || item;
+        opt.textContent = item.label || item.id || item;
+      }
+      DOM.selectSubject.appendChild(opt);
+    });
+    DOM.selectSubject.disabled = false;
+  } catch { showError('تعذّر تحميل المواد الدراسية.'); }
+}
+
+function onSubjectChange()   { state.selectedSubject  = DOM.selectSubject.value;   updateGenerateButton(); }
+function onTrimesterChange() { state.selectedTrimester = DOM.selectTrimester.value; }
+
+function updateGenerateButton() {
+  const ready = state.selectedLevel && state.selectedYear &&
+                state.selectedSpecialty && state.selectedSubject &&
+                !state.isGenerating;
+  DOM.btnGenerate.disabled = !ready;
+  if (state.isGenerating) {
+    DOM.btnGenerateLabel.textContent = 'جاري التوليد...';
+  } else if (!state.selectedLevel) {
+    DOM.btnGenerateLabel.textContent = 'أكمل الخيارات أولاً';
+  } else if (!state.selectedYear) {
+    DOM.btnGenerateLabel.textContent = 'اختر السنة الدراسية';
+  } else if (!state.selectedSpecialty) {
+    DOM.btnGenerateLabel.textContent = 'اختر الشعبة';
+  } else if (!state.selectedSubject) {
+    DOM.btnGenerateLabel.textContent = 'اختر المادة';
+  } else {
+    DOM.btnGenerateLabel.textContent = '✦ توليد الاختبار الآن';
+  }
+}
+
+function setDifficulty(value, btn) {
+  state.selectedDifficulty = value;
+  ['diff-easy','diff-medium','diff-hard'].forEach(id => {
+    $( id).classList.remove('active-easy','active-medium','active-hard');
+  });
+  btn.classList.add({ 'سهل':'active-easy','متوسط':'active-medium','صعب':'active-hard' }[value]);
+}
+
+async function handleGenerate() {
+  if (state.isGenerating) return;
+  if (!state.selectedLevel || !state.selectedYear || !state.selectedSpecialty || !state.selectedSubject) {
+    showError('يرجى اكتمال جميع الخيارات قبل التوليد.'); return;
+  }
+  if (state.countdownInterval) { clearInterval(state.countdownInterval); state.countdownInterval = null; }
+  state.isGenerating = true;
+  updateGenerateButton();
+  showGeneratingState();
+  resetAllSteps();
+  setProgress(0);
+
+  activateStep(1); setProgress(10);
+  await sleep(900);
+  completeStep(1); setProgress(25);
+  activateStep(2); setProgress(30);
+
+  let responseData = null;
+  try {
+    const res = await fetch(GENERATE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        educational_level: state.selectedLevel,
+        academic_year:     state.selectedYear,
+        specialty_stream:  state.selectedSpecialty,
+        subject:           state.selectedSubject,
+        trimester:         state.selectedTrimester,
+        duration:          state.selectedDuration,
+        difficulty:        state.selectedDifficulty,
+      }),
+    });
+    if (!res.ok) {
+      let msg = `خطأ في الخادم (${res.status})`;
+      try { const e = await res.json(); if (e.detail) msg = e.detail; } catch {}
+      throw new Error(msg);
+    }
+    responseData = await res.json();
+  } catch (err) {
+    state.isGenerating = false;
+    updateGenerateButton();
+    showIdleState();
+    showError(err.message || 'فشل التوليد — يرجى المحاولة مرة أخرى.');
+    return;
+  }
+
+  completeStep(2); setProgress(60); await sleep(500);
+  activateStep(3); setProgress(72); await sleep(700);
+  completeStep(3); setProgress(84); await sleep(400);
+  activateStep(4); setProgress(94); await sleep(600);
+  completeStep(4); setProgress(100); await sleep(450);
+
+  state.isGenerating = false;
+  updateGenerateButton();
+  populateDownloadLinks(responseData);
+  showDoneState(responseData);
+  startCountdown(responseData.expires_in_minutes * 60);
+}
+
+function activateStep(num) {
+  const step = $(`step-${num}`), icon = $(`step-${num}-icon`), label = $(`step-${num}-label`);
+  step.classList.add('active');
+  icon.className = 'step-icon active';
+  icon.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div>';
+  label.style.color = 'var(--text-primary)';
+}
+
+function completeStep(num) {
+  const step = $(`step-${num}`), icon = $(`step-${num}-icon`), label = $(`step-${num}-label`);
+  step.classList.remove('active'); step.classList.add('done');
+  icon.className = 'step-icon done';
+  icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  label.style.color = 'var(--color-success)';
+}
+
+function resetAllSteps() {
+  for (let i = 1; i <= 4; i++) {
+    const step = $(`step-${i}`), icon = $(`step-${i}-icon`), label = $(`step-${i}-label`);
+    step.classList.remove('active','done');
+    icon.className = 'step-icon pending'; icon.innerHTML = `${i}`;
+    label.style.color = 'var(--text-secondary)';
+  }
+}
+
+function setProgress(pct) { DOM.progressBar.style.width = `${pct}%`; }
+
+function showIdleState()      { DOM.stateIdle.style.display='flex'; DOM.stateGenerating.style.display='none'; DOM.stateDone.style.display='none'; }
+function showGeneratingState(){ DOM.stateIdle.style.display='none'; DOM.stateGenerating.style.display='flex'; DOM.stateDone.style.display='none'; }
+function showDoneState(data)  {
+  DOM.stateIdle.style.display='none'; DOM.stateGenerating.style.display='none'; DOM.stateDone.style.display='flex';
+  if (data) DOM.doneMeta.textContent = `${data.subject} — ${data.academic_year} — ${data.trimester}`;
+}
+
+function resetToIdle() {
+  if (state.countdownInterval) { clearInterval(state.countdownInterval); state.countdownInterval = null; }
+  state.countdownSeconds = 1800;
+  DOM.countdownDisplay.textContent = '30:00';
+  DOM.countdownDisplay.style.color = 'var(--text-accent)';
+  DOM.downloadExamPdf.href = DOM.downloadCorrPdf.href = DOM.downloadDocx.href = '#';
+  setProgress(0);
+  showIdleState();
+}
+
+function populateDownloadLinks(data) {
+  if (!data) return;
+  DOM.downloadExamPdf.href = `${DOWNLOAD_BASE}${data.exam_pdf_url}`;
+  DOM.downloadCorrPdf.href = `${DOWNLOAD_BASE}${data.correction_pdf_url}`;
+  DOM.downloadDocx.href    = `${DOWNLOAD_BASE}${data.exam_docx_url}`;
+  const y = (data.academic_year||'').replace(/\s+/g,'_');
+  const t = (data.trimester||'').replace(/\s+/g,'_');
+  const s = (data.subject||'').replace(/\s+/g,'_');
+  DOM.downloadExamPdf.setAttribute('download', `ostadi_exam_${y}_${t}_${s}.pdf`);
+  DOM.downloadCorrPdf.setAttribute('download', `ostadi_correction_${y}_${t}_${s}.pdf`);
+  DOM.downloadDocx.setAttribute('download',    `ostadi_exam_${y}_${t}_${s}.docx`);
+}
+
+function startCountdown(seconds) {
+  state.countdownSeconds = seconds;
+  if (state.countdownInterval) clearInterval(state.countdownInterval);
+  updateCountdownDisplay(state.countdownSeconds);
+  state.countdownInterval = setInterval(() => {
+    state.countdownSeconds -= 1;
+    if (state.countdownSeconds <= 0) { clearInterval(state.countdownInterval); state.countdownInterval = null; onCountdownExpired(); return; }
+    updateCountdownDisplay(state.countdownSeconds);
+    if (state.countdownSeconds <= 300)      DOM.countdownDisplay.style.color = 'var(--color-error)';
+    else if (state.countdownSeconds <= 600) DOM.countdownDisplay.style.color = 'var(--color-warning)';
+  }, 1000);
+}
+
+function updateCountdownDisplay(s) {
+  const m = String(Math.floor(s/60)).padStart(2,'0');
+  const sec = String(s%60).padStart(2,'0');
+  DOM.countdownDisplay.textContent = `${m}:${sec}`;
+}
+
+function onCountdownExpired() {
+  DOM.countdownDisplay.textContent = '00:00';
+  DOM.countdownDisplay.style.color = 'var(--color-error)';
+  [DOM.downloadExamPdf, DOM.downloadCorrPdf, DOM.downloadDocx].forEach(btn => {
+    btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; btn.removeAttribute('href');
+  });
+  DOM.doneMeta.textContent = 'انتهت صلاحية الملفات — يرجى التوليد من جديد.';
+  showError('انتهت صلاحية التحميل (30 دقيقة). يرجى توليد الاختبار من جديد.');
+}
+
+let _toastTimeout = null;
+function showError(message, ms = 5500) {
+  DOM.errorToastMsg.textContent = message;
+  DOM.errorToast.classList.add('visible');
+  if (_toastTimeout) clearTimeout(_toastTimeout);
+  _toastTimeout = setTimeout(() => DOM.errorToast.classList.remove('visible'), ms);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function resetSelect(el, placeholder) { el.innerHTML = `<option value="" disabled selected>${placeholder}</option>`; el.value = ''; }
+
+DOM.selectLevel    .addEventListener('change', onLevelChange);
+DOM.selectYear     .addEventListener('change', onYearChange);
+DOM.selectSpecialty.addEventListener('change', onSpecialtyChange);
+DOM.selectSubject  .addEventListener('change', onSubjectChange);
+DOM.selectTrimester.addEventListener('change', onTrimesterChange);
+DOM.rangeDuration  .addEventListener('input',  () => {
+  state.selectedDuration = parseInt(DOM.rangeDuration.value, 10);
+  DOM.durationDisplay.textContent = state.selectedDuration;
+});
+DOM.errorToast.addEventListener('click', () => DOM.errorToast.classList.remove('visible'));
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await checkServerHealth();
+  setInterval(checkServerHealth, 30_000);
+  await loadLevels();
+  setDifficulty('سهل', $('diff-easy'));
+  updateGenerateButton();
+  DOM.durationDisplay.textContent = DOM.rangeDuration.value;
+  showIdleState();
+  console.info('%cOSTADI — أستاذي', 'font-family:-apple-system,Helvetica Neue,sans-serif;font-size:16px;font-weight:700;color:#3B82F6;');
+  console.info('%cArchitect: Yacine Laguel | v1.0.0', 'font-family:-apple-system,sans-serif;color:#64748B;font-size:11px;');
+});
+</script>
+</body>
+</html>
