@@ -118,6 +118,7 @@ async def lifespan(app: FastAPI):
 # ---------------------------------------------------------------------------
 # FASTAPI APPLICATION INSTANCE
 # ---------------------------------------------------------------------------
+import uvicorn
 app = FastAPI(
     title="أستاذي — Ostadi",
     description=(
