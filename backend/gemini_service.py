@@ -464,6 +464,7 @@ async def generate_exam_content(
         temperature=GEMINI_TEMPERATURE,
         top_p=GEMINI_TOP_P,
         top_k=GEMINI_TOP_K,
+        response_mime_type="application/json"
     )
 
     # ------------------------------------------------------------------
