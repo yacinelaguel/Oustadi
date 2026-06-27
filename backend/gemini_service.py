@@ -51,7 +51,7 @@ JITTER_RANGE         = 5.0    # ±5 second random jitter to prevent thundering h
 # FIX: switched from gemini-2.0-flash-lite (very low free quota)
 #      to gemini-1.5-flash which has a more generous free tier:
 #      - 15 RPM, 1 million TPM, 1500 RPD
-GEMINI_MODEL_NAME  = "gemini-1.5-flash"
+GEMINI_MODEL_NAME = "gemini-2.0-flash"
 GEMINI_MAX_TOKENS  = 4096
 GEMINI_TEMPERATURE = 0.4    # Low temp → deterministic, structured output
 GEMINI_TOP_P       = 0.9
